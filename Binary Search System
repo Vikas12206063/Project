@@ -1,0 +1,237 @@
+import java.util.Scanner;
+
+class Student {
+    int id;
+    String name;
+    String department;
+
+    public Student(int id, String name, String department) {
+        this.id = id;
+        this.name = name;
+        this.department = department;
+    }
+}
+
+class TreeNode {
+    Student student;
+    TreeNode left, right;
+
+    public TreeNode(Student student) {
+        this.student = student;
+        left = right = null;
+    }
+}
+
+class AdmissionSystem {
+    TreeNode root;
+
+    AdmissionSystem() {
+        root = null;
+    }
+
+    // Insert a new student
+    void insert(Student student) {
+        root = insertRec(root, student);
+    }
+
+    TreeNode insertRec(TreeNode root, Student student) {
+        if (root == null) {
+            root = new TreeNode(student);
+            return root;
+        }
+        if (student.id < root.student.id) {
+            root.left = insertRec(root.left, student);
+        } else if (student.id > root.student.id) {
+            root.right = insertRec(root.right, student);
+        }
+        return root;
+    }
+
+    // Search for a student by ID
+    Student searchById(int id) {
+        TreeNode node = searchByIdRec(root, id);
+        return node != null ? node.student : null;
+    }
+
+    TreeNode searchByIdRec(TreeNode root, int id) {
+        if (root == null || root.student.id == id) {
+            return root;
+        }
+        if (root.student.id > id) {
+            return searchByIdRec(root.left, id);
+        }
+        return searchByIdRec(root.right, id);
+    }
+
+    // Search for students by name
+    void searchByName(String name) {
+        searchByNameRec(root, name);
+    }
+
+    void searchByNameRec(TreeNode root, String name) {
+        if (root != null) {
+            searchByNameRec(root.left, name);
+            if (root.student.name.equalsIgnoreCase(name)) {
+                System.out.println("ID: " + root.student.id + ", Name: " + root.student.name + ", Department: " + root.student.department);
+            }
+            searchByNameRec(root.right, name);
+        }
+    }
+
+    // Search for students by department
+    void searchByDepartment(String department) {
+        searchByDepartmentRec(root, department);
+    }
+
+    void searchByDepartmentRec(TreeNode root, String department) {
+        if (root != null) {
+            searchByDepartmentRec(root.left, department);
+            if (root.student.department.equalsIgnoreCase(department)) {
+                System.out.println("ID: " + root.student.id + ", Name: " + root.student.name + ", Department: " + root.student.department);
+            }
+            searchByDepartmentRec(root.right, department);
+        }
+    }
+
+    // Delete a student by ID
+    void delete(int id) {
+        root = deleteRec(root, id);
+    }
+
+    TreeNode deleteRec(TreeNode root, int id) {
+        if (root == null) {
+            return root;
+        }
+
+        if (id < root.student.id) {
+            root.left = deleteRec(root.left, id);
+        } else if (id > root.student.id) {
+            root.right = deleteRec(root.right, id);
+        } else {
+            if (root.left == null) {
+                return root.right;
+            } else if (root.right == null) {
+                return root.left;
+            }
+            root.student = minValue(root.right).student;
+            root.right = deleteRec(root.right, root.student.id);
+        }
+        return root;
+    }
+
+    TreeNode minValue(TreeNode root) {
+        while (root.left != null) {
+            root = root.left;
+        }
+        return root;
+    }
+
+    // Inorder traversal
+    void inorder() {
+        inorderRec(root);
+    }
+
+    void inorderRec(TreeNode root) {
+        if (root != null) {
+            inorderRec(root.left);
+            System.out.println("ID: " + root.student.id + ", Name: " + root.student.name + ", Department: " + root.student.department);
+            inorderRec(root.right);
+        }
+    }
+
+    // Method to handle different search options
+    void searchStudent(Scanner scanner) {
+        System.out.println("Search options:");
+        System.out.println("1. Search by ID");
+        System.out.println("2. Search by Name");
+        System.out.println("3. Search by Department");
+        System.out.print("Enter your choice: ");
+        int searchChoice = scanner.nextInt();
+        scanner.nextLine(); // consume the newline
+
+        switch (searchChoice) {
+            case 1:
+                System.out.print("Enter student ID to search: ");
+                int searchId = scanner.nextInt();
+                Student studentById = searchById(searchId);
+                if (studentById != null) {
+                    System.out.println("Found: ID: " + studentById.id + ", Name: " + studentById.name + ", Department: " + studentById.department);
+                } else {
+                    System.out.println("Student not found.");
+                }
+                break;
+            case 2:
+                System.out.print("Enter student name to search: ");
+                String searchName = scanner.nextLine();
+                searchByName(searchName);
+                break;
+            case 3:
+                System.out.print("Enter department to search: ");
+                String searchDepartment = scanner.nextLine();
+                searchByDepartment(searchDepartment);
+                break;
+            default:
+                System.out.println("Invalid choice.");
+                break;
+        }
+    }
+
+    public static void main(String[] args) {
+        AdmissionSystem system = new AdmissionSystem();
+        Scanner scanner = new Scanner(System.in);
+
+        // Adding some students for testing
+        system.insert(new Student(1001, "Alice", "Computer Science"));
+        system.insert(new Student(1002, "Bob", "Mathematics"));
+        system.insert(new Student(1003, "Charlie", "Physics"));
+        system.insert(new Student(1004, "David", "Chemistry"));
+        system.insert(new Student(1005, "Alice", "Mathematics"));
+
+        while (true) {
+            System.out.println("\nAdmission System Menu:");
+            System.out.println("1. Insert student");
+            System.out.println("2. Search student");
+            System.out.println("3. Delete student by ID");
+            System.out.println("4. Display all students");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume the newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter student ID: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine(); // consume the newline
+                    System.out.print("Enter student name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter student department: ");
+                    String department = scanner.nextLine();
+                    system.insert(new Student(id, name, department));
+                    break;
+                case 2:
+                    system.searchStudent(scanner);
+                    break;
+                case 3:
+                    System.out.print("Enter student ID to delete: ");
+                    int deleteId = scanner.nextInt();
+                    system.delete(deleteId);
+                    break;
+                case 4:
+                    System.out.println("Student records in order:");
+                    system.inorder();
+                    break;
+                case 5:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+            }
+        }
+    }
+}
+
+I will make the student admission system using BST (Binary Search System).
